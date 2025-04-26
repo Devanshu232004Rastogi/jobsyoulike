@@ -55,7 +55,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@tailwindcss/typography": "github:tailwindcss/typography",
+    "@tailwindcss/typography":"https://github.com/tailwindlabs/tailwindcss-typography.git",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
