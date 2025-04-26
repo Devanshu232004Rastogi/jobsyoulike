@@ -7,7 +7,7 @@ import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-// @ts-ignore - Ignore type checking for this component
+// @ts-expect-error - Next.js page props type mismatch
 export default async function ApplicationSuccessPage({
   params,
 }: {
