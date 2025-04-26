@@ -1,13 +1,16 @@
-import { saveJobPost, unSaveJobPost } from "@/app/actions";
+import { applyForJob, saveJobPost, unSaveJobPost } from "@/app/actions";
 import arcjet, { detectBot, tokenBucket } from "@/app/utils/arcjet";
 import { auth } from "@/app/utils/auth";
 import { getFlagEmoji } from "@/app/utils/countriesList";
 import { prisma } from "@/app/utils/db";
 import { benefits } from "@/app/utils/listOfBenefits";
 import { JsonToHtml } from "@/components/custom_component/JsonToHtml";
-import { SaveJobButton } from "@/components/custom_component/SubmitButtons";
+import {
+  SaveJobButton,
+  SubmitButton,
+} from "@/components/custom_component/SButtons";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { request } from "@arcjet/next";
@@ -114,7 +117,14 @@ export default async function JobIdPage({ params }: { params: Params }) {
 
   const locationFlag = getFlagEmoji(data.location);
 
-  console.log(data)
+  // Create form action function with job id
+  const applyToJob = async () => {
+    "use server";
+    if (jobId) {
+      await applyForJob(jobId);
+    }
+  };
+
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="space-y-8 col-span-2">
@@ -204,7 +214,18 @@ export default async function JobIdPage({ params }: { params: Params }) {
               </p>
             </div>
 
-            <Button className="w-full">Apply now</Button>
+            {session?.user ? (
+              <form action={applyToJob}>
+                <SubmitButton className="w-full">Apply now</SubmitButton>
+              </form>
+            ) : (
+              <Link
+                href={`/login?callbackUrl=/job/${jobId}`}
+                className={buttonVariants({ className: "w-full" })}
+              >
+                Sign in to apply
+              </Link>
+            )}
           </div>
         </Card>
 

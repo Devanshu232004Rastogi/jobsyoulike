@@ -12,6 +12,7 @@ import { jobListingDurationPricing } from "./utils/jobListingDurationPricing";
 import { inngest } from "./utils/inngest/client";
 import { revalidatePath } from "next/cache";
 
+import { auth } from "@/app/utils/auth";
 const aj = arcjet
   .withRule(
     shield({
@@ -24,6 +25,7 @@ const aj = arcjet
       allow: [],
     })
   );
+
 export async function createCompany(data: z.infer<typeof companySchema>) {
   const session = await requireUser();
 
@@ -310,4 +312,57 @@ export async function deleteJobPost(jobId: string) {
   });
 
   return redirect("/my-jobs");
+}
+
+export async function applyForJob(jobId: string)
+ {
+  const session = await auth();
+  
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+  
+  const userId = session.user.id;
+  
+  // Get user profile to fetch resume URL
+  const jobSeeker = await prisma.jobSeeker.findUnique({
+    where: {
+      userId: userId,
+    },
+    select: {
+      resume: true,
+    },
+  });
+  
+  if (!jobSeeker?.resume) {
+    // Handle case where user doesn't have a resume
+    throw new Error("You need to upload your resume before applying for jobs");
+  }
+  
+  // Check if user has already applied
+  const existingApplication = await prisma.jobApplication.findUnique({
+    where: {
+      userId_jobPostId: {
+        jobPostId: jobId,
+        userId: userId,
+      },
+    },
+  });
+  
+  if (existingApplication) {
+    // User has already applied
+    throw new Error("You have already applied for this job");
+  }
+  
+  // Create application record
+  // const application = await prisma.jobApplication.create({
+  //   data: {
+  //     jobPostId: jobId,
+  //     userId: userId,
+  //     message: message || "",
+  //   },
+  // });
+  
+  revalidatePath(`/job/${jobId}`);
+  redirect(`/job/${jobId}/applied`);
 }
