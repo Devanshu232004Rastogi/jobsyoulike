@@ -320,7 +320,7 @@ export async function applyForJob(jobId: string, message?: string) {
   if (!session?.user?.id) {
     redirect("/login");
   }
-  
+  console.log(message)
   const userId = session.user.id;
   
   // Get user profile to fetch resume URL
