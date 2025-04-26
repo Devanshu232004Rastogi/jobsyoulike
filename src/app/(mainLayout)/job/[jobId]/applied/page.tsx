@@ -1,4 +1,4 @@
-// app/jobs/[jobId]/applied/page.tsx
+// app/(mainLayout)/job/[jobId]/applied/page.tsx
 
 import { auth } from "@/app/utils/auth";
 import { prisma } from "@/app/utils/db";
@@ -7,15 +7,14 @@ import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-interface PageProps {
-  params: {
-    jobId: string;
-  };
-}
+type Props = {
+  params: { jobId: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
 export default async function ApplicationSuccessPage({
   params,
-}: PageProps) {
+}: Props) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
