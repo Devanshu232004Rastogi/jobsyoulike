@@ -9,8 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import ArcjetLogo from "../../../public/arcjet.jpg";
-import InngestLogo from "../../../public/inngest-locale.png";
+import ArcjetLogo from "@/../public/arcjet.jpg";
+import InngestLogo from "@/../public/inngest-locale.png";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
