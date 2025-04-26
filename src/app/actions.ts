@@ -314,8 +314,7 @@ export async function deleteJobPost(jobId: string) {
   return redirect("/my-jobs");
 }
 
-export async function applyForJob(jobId: string)
- {
+export async function applyForJob(jobId: string, message?: string) {
   const session = await auth();
   
   if (!session?.user?.id) {
