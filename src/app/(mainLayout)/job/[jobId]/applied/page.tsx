@@ -4,16 +4,11 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-
-type ApplicationSuccessPageProps = {
-  params: {
-    jobId: string;
-  };
-};
+import { PageProps } from "next";
 
 export default async function ApplicationSuccessPage({
   params,
-}: ApplicationSuccessPageProps) {
+}: PageProps<{ jobId: string }>) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
