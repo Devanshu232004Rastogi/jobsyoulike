@@ -7,12 +7,17 @@ import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-// @ts-expect-error - Next.js page props type mismatch
-export default async function ApplicationSuccessPage({
-  params,
-}: {
-  params: { jobId: string };
-}) {
+// Define an interface for the generated PageProps type
+interface PageProps {
+  params: Promise<{ jobId: string }>;
+}
+
+// Create a component that works with the expected types
+export default async function ApplicationSuccessPage(props: PageProps) {
+  // Resolve the params promise
+  const params = await props.params;
+  const jobId = params.jobId;
+
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
@@ -20,7 +25,7 @@ export default async function ApplicationSuccessPage({
 
   const jobPost = await prisma.jobPost.findUnique({
     where: {
-      id: params.jobId,
+      id: jobId,
     },
     select: {
       jobTitle: true,
