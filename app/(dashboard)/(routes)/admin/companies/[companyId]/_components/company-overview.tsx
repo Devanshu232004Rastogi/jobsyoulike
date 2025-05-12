@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, Lightbulb, Loader2, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { Company} from "@/lib/generated/prisma";
-import { Textarea } from "@/components/ui/textarea";
+// import { Textarea } from "@/components/ui/textarea";
 import getGenerativeAIResponse from "@/scripts/aistudio";
 import { Editor } from "@/components/custom/editor";
 import { Preview } from "@/components/custom/preview";

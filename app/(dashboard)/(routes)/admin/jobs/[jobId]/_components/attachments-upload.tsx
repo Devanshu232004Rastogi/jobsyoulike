@@ -51,7 +51,7 @@ export const AttachmentsUploads = ({
     for (const file of files) {
       try {
         const fileId = ID.unique();
-        const fileName = `${Date.now()}-${file.name}`;
+        `${Date.now()}-${file.name}`;
         
         const uploadTask = storage.createFile(
           appwriteConfig.storageBucketId,

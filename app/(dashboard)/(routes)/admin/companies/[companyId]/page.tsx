@@ -3,12 +3,12 @@ import { auth } from "@clerk/nextjs/server";
 import { ArrowLeft, LayoutDashboard, ListCheck, Network } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Banner } from "@/components/custom/banner";
+// import { Banner } from "@/components/custom/banner";
 import { IconBadge } from "@/components/custom/icon-badge";
 import NameForm from "./_components/name-form";
 import ImageForm from "./_components/image-form";
 import DescriptionForm from "./_components/description-form";
-import SocialContactForm, {
+import  {
   CompanySocialContactsForm,
 } from "./_components/social-contact-form";
 import CoverForm from "./_components/cover-form";
@@ -39,9 +39,9 @@ const CompanyEditPage = async ({
     },
   });
 
-  const categories = await db.category.findMany({
-    orderBy: { name: "asc" },
-  });
+  // const categories = await db.category.findMany({
+  //   orderBy: { name: "asc" },
+  // });
 
   if (!company) {
     return redirect("/admin/companies");
@@ -64,7 +64,7 @@ const CompanyEditPage = async ({
   const totalFields = requireFields.length;
   const completedFields = requireFields.filter(Boolean).length;
   const completionText = `(${completedFields}/${totalFields})`;
-  const isComplete = requireFields.every(Boolean);
+  // const isComplete = requireFields.every(Boolean);
 
   return (
     <div className="p-6">

@@ -1,23 +1,18 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  Pencil,
+  // MoreHorizontal,
+  // Pencil,
   Eye,
   ArrowUpDown,
-  ImageIcon,
-  EyeIcon,
+  // ImageIcon,
+  // EyeIcon,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image";
 
 export type AppliedJobsProps = {
   id: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Banner } from "@/components/custom/banner";
-import Box from "@/components/custom/box";
+// import Box from "@/components/custom/box";
 import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
 import { Preview } from "@/components/custom/preview";
 import { ApplyModal } from "@/components/ui/apply-modal";
@@ -42,7 +42,7 @@ const router = useRouter()
   const onApplied = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.patch(
+      await axios.patch(
         `/api/users/${userProfile?.userId}/appliedJobs`,
         jobId 
       );

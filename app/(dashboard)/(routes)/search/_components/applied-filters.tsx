@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Category } from "@/lib/generated/prisma";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {  useSearchParams } from "next/navigation";
 import React from "react";
 
 interface AppliedFiltersProps {
@@ -10,8 +10,8 @@ interface AppliedFiltersProps {
 }
 
 export const AppliedFilters = ({ categories }: AppliedFiltersProps) => {
-  const pathname = usePathname();
-  const router = useRouter();
+  // const pathname = usePathname();
+  // const router = useRouter();
   const searchParams = useSearchParams();
 
   const currentParams = Object.fromEntries(searchParams.entries());

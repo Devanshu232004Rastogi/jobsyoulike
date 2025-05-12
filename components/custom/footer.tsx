@@ -1,10 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { Facebook, Linkedin, Twitter, Youtube } from "lucide-react";
-import LogoImg from "@/public/Logo.png";
-
 export const Footer = () => {
   return (
     <footer className="bg-white border-t border-gray-100 py-5 px-4">

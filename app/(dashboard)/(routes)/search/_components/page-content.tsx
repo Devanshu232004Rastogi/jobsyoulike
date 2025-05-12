@@ -3,7 +3,7 @@
 import { Job } from "@/lib/generated/prisma";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { fadeInOut } from "@/animations";
+// import { fadeInOut } from "@/animations";
 import JobCardItem from "./job-card-items";
 interface PageContentProps {
   jobs: Job[];

@@ -8,8 +8,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   BriefcaseBusiness,
-  Currency,
-  CurrencyIcon,
+  // Currency,
+  // CurrencyIcon,
   DollarSign,
   Layers,
   Loader2,

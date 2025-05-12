@@ -18,7 +18,7 @@ import { Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { Job } from "@/lib/generated/prisma";
 import { cn } from "@/lib/utils";
-import ComboBox from "@/components/ui/combobox"; // <-- Import ComboBox
+// import ComboBox from "@/components/ui/combobox"; // <-- Import ComboBox
 import { Input } from "@/components/ui/input";
 
 interface HourlyRateFormProps {
