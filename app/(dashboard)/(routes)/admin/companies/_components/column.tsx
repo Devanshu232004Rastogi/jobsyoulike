@@ -19,7 +19,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 export type CompanyColumns = {
-  title: string;
   id: string;
   name: string;
   logo: string;

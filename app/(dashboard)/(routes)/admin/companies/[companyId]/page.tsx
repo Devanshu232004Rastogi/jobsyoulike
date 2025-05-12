@@ -7,21 +7,18 @@ import { IconBadge } from "@/components/custom/icon-badge";
 import NameForm from "./_components/name-form";
 import ImageForm from "./_components/image-form";
 import DescriptionForm from "./_components/description-form";
-import {
-  CompanySocialContactsForm,
-} from "./_components/social-contact-form";
+import { CompanySocialContactsForm } from "./_components/social-contact-form";
 import CoverForm from "./_components/cover-form";
 import CompanyCompleteOverview from "./_components/company-overview";
 import JoinUsForm from "./_components/join-us-form";
-import { type Metadata } from "next";
 
-interface PageProps {
-  params: {
-    companyId: string;
-  };
-}
+// ✅ Removed Metadata import — not used
 
-const CompanyEditPage = async ({ params }: PageProps) => {
+const CompanyEditPage = async ({
+  params,
+}: {
+  params: { companyId: string };
+}) => {
   const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
 
   if (!validObjectIdRegex.test(params.companyId)) {
