@@ -12,38 +12,42 @@ import CoverForm from "./_components/cover-form";
 import CompanyCompleteOverview from "./_components/company-overview";
 import JoinUsForm from "./_components/join-us-form";
 
-// Create a separate function for the main content logic
-async function getCompanyData(companyId: string) {
+// Function to wrap params in a promise to satisfy the type requirement
+function wrapParamsInPromise(
+  companyId: string
+): Promise<{ companyId: string }> {
+  return Promise.resolve({ companyId });
+}
+
+// Define the page component that expects params to be a Promise
+export default async function Page({
+  params: paramsPromise,
+}: {
+  params: Promise<{ companyId: string }>;
+}) {
+  // Resolve the params promise
+  const params = await paramsPromise;
+
+  // Regular page code starts here
   const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
-  if (!validObjectIdRegex.test(companyId)) {
-    return null;
+  if (!validObjectIdRegex.test(params.companyId)) {
+    return redirect("/admin/companies");
   }
 
   const { userId } = await auth();
   if (!userId) {
-    return null;
+    return redirect("/");
   }
 
   const company = await db.company.findUnique({
     where: {
-      id: companyId,
+      id: params.companyId,
       userId,
     },
   });
 
-  return company;
-}
-
-// Using the correct Next.js App Router page component format
-export default async function Page({
-  params,
-}: {
-  params: { companyId: string };
-}) {
-  const company = await getCompanyData(params.companyId);
-
   if (!company) {
-    redirect("/admin/companies");
+    return redirect("/admin/companies");
   }
 
   const requireFields = [
