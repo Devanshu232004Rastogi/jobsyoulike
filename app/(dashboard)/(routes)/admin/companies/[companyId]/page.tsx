@@ -11,45 +11,50 @@ import { CompanySocialContactsForm } from "./_components/social-contact-form";
 import CoverForm from "./_components/cover-form";
 import CompanyCompleteOverview from "./_components/company-overview";
 import JoinUsForm from "./_components/join-us-form";
+import { Suspense } from "react";
 
-// Function to wrap params in a promise to satisfy the type requirement
-function wrapParamsInPromise(
-  companyId: string
-): Promise<{ companyId: string }> {
-  return Promise.resolve({ companyId });
+// Simplified approach without type annotations
+export default function Page(props) {
+  // Extract companyId from props, regardless of how it's nested
+  const companyId = props.params?.companyId;
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CompanyEditPageContent companyId={companyId} />
+    </Suspense>
+  );
 }
 
-// Define the page component that expects params to be a Promise
-export default async function Page({
-  params: paramsPromise,
-}: {
-  params: Promise<{ companyId: string }>;
-}) {
-  // Resolve the params promise
-  const params = await paramsPromise;
-
-  // Regular page code starts here
+// Separate async server component to handle the data fetching and content rendering
+async function CompanyEditPageContent({ companyId }: { companyId: string }) {
+  // Validation
   const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
-  if (!validObjectIdRegex.test(params.companyId)) {
-    return redirect("/admin/companies");
+  if (!validObjectIdRegex.test(companyId)) {
+    redirect("/admin/companies");
+    return null;
   }
 
+  // Auth check
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/");
+    redirect("/");
+    return null;
   }
 
+  // Fetch company
   const company = await db.company.findUnique({
     where: {
-      id: params.companyId,
+      id: companyId,
       userId,
     },
   });
 
   if (!company) {
-    return redirect("/admin/companies");
+    redirect("/admin/companies");
+    return null;
   }
 
+  // Calculate completion stats
   const requireFields = [
     company.name,
     company.description,
@@ -69,6 +74,7 @@ export default async function Page({
   const completedFields = requireFields.filter(Boolean).length;
   const completionText = `(${completedFields}/${totalFields})`;
 
+  // Render UI
   return (
     <div>
       <div className="flex items-center gap-x-2 mb-8">
@@ -101,13 +107,10 @@ export default async function Page({
                   <h2 className="text-xl">Customize your company</h2>
                 </div>
 
-                <NameForm initialData={company} companyId={params.companyId} />
-                <DescriptionForm
-                  initialData={company}
-                  companyId={params.companyId}
-                />
-                <ImageForm initialData={company} companyId={params.companyId} />
-                <CoverForm initialData={company} companyId={params.companyId} />
+                <NameForm initialData={company} companyId={companyId} />
+                <DescriptionForm initialData={company} companyId={companyId} />
+                <ImageForm initialData={company} companyId={companyId} />
+                <CoverForm initialData={company} companyId={companyId} />
               </div>
             </div>
 
@@ -121,16 +124,13 @@ export default async function Page({
 
                 <CompanySocialContactsForm
                   initialData={company}
-                  companyId={params.companyId}
+                  companyId={companyId}
                 />
                 <CompanyCompleteOverview
                   initialData={company}
-                  companyId={params.companyId}
+                  companyId={companyId}
                 />
-                <JoinUsForm
-                  initialData={company}
-                  companyId={params.companyId}
-                />
+                <JoinUsForm initialData={company} companyId={companyId} />
               </div>
             </div>
           </div>
