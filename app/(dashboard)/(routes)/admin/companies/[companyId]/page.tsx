@@ -8,13 +8,11 @@ import { IconBadge } from "@/components/custom/icon-badge";
 import NameForm from "./_components/name-form";
 import ImageForm from "./_components/image-form";
 import DescriptionForm from "./_components/description-form";
-import {
-  CompanySocialContactsForm,
-} from "./_components/social-contact-form";
+import { CompanySocialContactsForm } from "./_components/social-contact-form";
 import CoverForm from "./_components/cover-form";
 import CompanyCompleteOverview from "./_components/company-overview";
 import JoinUsForm from "./_components/join-us-form";
-
+// @ts-ignore
 const CompanyEditPage = async ({
   params,
 }: {
