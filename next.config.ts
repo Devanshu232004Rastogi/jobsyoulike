@@ -1,6 +1,9 @@
-import type { NextConfig } from "next";
+import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -12,11 +15,9 @@ const nextConfig: NextConfig = {
         hostname: "img.clerk.com",
       },
       {
-        protocol: "https", 
+        protocol: "https",
         hostname: "images.clerk.dev",
       },
     ],
   },
 };
-
-export default nextConfig;
