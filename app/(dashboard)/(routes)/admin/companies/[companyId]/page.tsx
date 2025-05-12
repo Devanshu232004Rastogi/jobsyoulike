@@ -1,18 +1,19 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { ArrowLeft, LayoutDashboard, Network } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, ListCheck, Network } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+// import { Banner } from "@/components/custom/banner";
 import { IconBadge } from "@/components/custom/icon-badge";
 import NameForm from "./_components/name-form";
 import ImageForm from "./_components/image-form";
 import DescriptionForm from "./_components/description-form";
-import { CompanySocialContactsForm } from "./_components/social-contact-form";
+import  {
+  CompanySocialContactsForm,
+} from "./_components/social-contact-form";
 import CoverForm from "./_components/cover-form";
 import CompanyCompleteOverview from "./_components/company-overview";
 import JoinUsForm from "./_components/join-us-form";
-
-// ✅ Removed Metadata import — not used
 
 const CompanyEditPage = async ({
   params,
@@ -38,6 +39,10 @@ const CompanyEditPage = async ({
     },
   });
 
+  // const categories = await db.category.findMany({
+  //   orderBy: { name: "asc" },
+  // });
+
   if (!company) {
     return redirect("/admin/companies");
   }
@@ -59,6 +64,7 @@ const CompanyEditPage = async ({
   const totalFields = requireFields.length;
   const completedFields = requireFields.filter(Boolean).length;
   const completionText = `(${completedFields}/${totalFields})`;
+  // const isComplete = requireFields.every(Boolean);
 
   return (
     <div className="p-6">
@@ -78,6 +84,9 @@ const CompanyEditPage = async ({
         </div>
       </div>
 
+     
+
+      {/* Grid layout for left and right panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
         {/* Left Column */}
         <div className="space-y-6">
@@ -104,10 +113,9 @@ const CompanyEditPage = async ({
           <CoverForm initialData={company} companyId={company.id} />
         </div>
       </div>
-
       <div className="col-span-2">
-        <CompanyCompleteOverview initialData={company} companyId={company.id} />
-        <JoinUsForm initialData={company} companyId={company.id} />
+        <CompanyCompleteOverview  initialData={company} companyId={company.id} />
+        <JoinUsForm  initialData={company} companyId={company.id} />
       </div>
     </div>
   );
