@@ -3,31 +3,31 @@ import { auth } from "@clerk/nextjs/server";
 import { ArrowLeft, LayoutDashboard, ListCheck, Network } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-// import { Banner } from "@/components/custom/banner";
 import { IconBadge } from "@/components/custom/icon-badge";
 import NameForm from "./_components/name-form";
 import ImageForm from "./_components/image-form";
 import DescriptionForm from "./_components/description-form";
-import  {
-  CompanySocialContactsForm,
-} from "./_components/social-contact-form";
+import { CompanySocialContactsForm } from "./_components/social-contact-form";
 import CoverForm from "./_components/cover-form";
 import CompanyCompleteOverview from "./_components/company-overview";
 import JoinUsForm from "./_components/join-us-form";
 
-const CompanyEditPage = async ({
-  params,
-}: {
-  params: { companyId: string };
-}) => {
-  const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
+// Define the correct type for the page props according to Next.js App Router
+interface CompanyEditPageProps {
+  params: {
+    companyId: string;
+  };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
 
+// The correct way to define a page component in Next.js App Router
+const CompanyEditPage = async ({ params }: CompanyEditPageProps) => {
+  const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
   if (!validObjectIdRegex.test(params.companyId)) {
     return redirect("/admin/companies");
   }
 
   const { userId } = await auth();
-
   if (!userId) {
     return redirect("/");
   }
@@ -38,10 +38,6 @@ const CompanyEditPage = async ({
       userId,
     },
   });
-
-  // const categories = await db.category.findMany({
-  //   orderBy: { name: "asc" },
-  // });
 
   if (!company) {
     return redirect("/admin/companies");
@@ -61,61 +57,77 @@ const CompanyEditPage = async ({
     company.overview,
     company.whyJoinUs,
   ];
+
   const totalFields = requireFields.length;
   const completedFields = requireFields.filter(Boolean).length;
   const completionText = `(${completedFields}/${totalFields})`;
-  // const isComplete = requireFields.every(Boolean);
 
   return (
-    <div className="p-6">
-      <Link href={"/admin/companies"}>
-        <div className="flex items-center gap-3 text-sm text-neutral-500">
-          <ArrowLeft className="w-4 h-4" />
+    <div>
+      <div className="flex items-center gap-x-2 mb-8">
+        <Link
+          href="/admin/companies"
+          className="flex items-center text-sm hover:opacity-75 transition"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
           Back
-        </div>
-      </Link>
-
-      <div className="flex items-center justify-between my-4">
-        <div className="flex flex-col gap-y-2">
-          <h1 className="text-2xl font-medium">Company Setup</h1>
-          <span className="text-sm text-neutral-500">
-            Complete all fields {completionText}
-          </span>
-        </div>
+        </Link>
       </div>
 
-     
-
-      {/* Grid layout for left and right panels */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-        {/* Left Column */}
-        <div className="space-y-6">
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col gap-6 flex-1">
           <div className="flex items-center gap-x-2">
-            <IconBadge icon={LayoutDashboard} variant={"default"} />
-            <h2 className="text-xl text-neutral-700">Customize your company</h2>
+            <IconBadge icon={LayoutDashboard} />
+            <h2 className="text-xl">Company Setup</h2>
+            <span className="text-sm text-slate-500">
+              Complete all fields {completionText}
+            </span>
           </div>
 
-          <NameForm initialData={company} companyId={company.id} />
-          <DescriptionForm initialData={company} companyId={company.id} />
-          <ImageForm initialData={company} companyId={company.id} />
-        </div>
+          {/* Grid layout for left and right panels */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column */}
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListCheck} />
+                  <h2 className="text-xl">Customize your company</h2>
+                </div>
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-x-2">
-            <IconBadge icon={Network} />
-            <h2 className="text-xl">Company SocialContacts</h2>
+                <NameForm initialData={company} companyId={params.companyId} />
+                <DescriptionForm
+                  initialData={company}
+                  companyId={params.companyId}
+                />
+                <ImageForm initialData={company} companyId={params.companyId} />
+                <CoverForm initialData={company} companyId={params.companyId} />
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={Network} />
+                  <h2 className="text-xl">Company SocialContacts</h2>
+                </div>
+
+                <CompanySocialContactsForm
+                  initialData={company}
+                  companyId={params.companyId}
+                />
+                <CompanyCompleteOverview
+                  initialData={company}
+                  companyId={params.companyId}
+                />
+                <JoinUsForm
+                  initialData={company}
+                  companyId={params.companyId}
+                />
+              </div>
+            </div>
           </div>
-          <CompanySocialContactsForm
-            initialData={company}
-            companyId={company.id}
-          />
-          <CoverForm initialData={company} companyId={company.id} />
         </div>
-      </div>
-      <div className="col-span-2">
-        <CompanyCompleteOverview  initialData={company} companyId={company.id} />
-        <JoinUsForm  initialData={company} companyId={company.id} />
       </div>
     </div>
   );
