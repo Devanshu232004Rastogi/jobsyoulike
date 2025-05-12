@@ -80,7 +80,7 @@ export const JoinUsForm = ({ initialData, companyId }: JoinUsFormProps) => {
       4. Industry impact, innovation, or leadership
       5. Benefits or unique perks of working at the company
       
-      Avoid using generic or vague phrases. Use a warm, engaging, and inspiring tone to attract top talent. , neither tell like , here's a "Why Join Us" section crafted for for this company, aiming for that compelling, professional, warm, engaging, and inspiring tone no , direct result okay:
+      Avoid using generic or vague phrases. Use a warm, engaging, and inspiring tone to attract top talent. , neither tell like , here is a "Why Join Us" section crafted for for this company, aiming for that compelling, professional, warm, engaging, and inspiring tone no , direct result okay:
 
 --- `;
 

@@ -60,7 +60,7 @@ export const DescriptionForm = ({ initialData, companyId }: DescriptionFormProps
   return (
     <div className="mt-6 border bg-neutral-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Company's  Description
+        Company Description
         <Button onClick={toggleEditing} variant="ghost">
           {isEditing ? "Cancel" : (
             <>
