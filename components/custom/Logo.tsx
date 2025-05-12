@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import LogoImg from "@/public/Logo.png"
+import LogoImg from "@/public/logo.png"
 
 const Logo = () => {
   return <Image src={LogoImg} alt="Logo" height={150} width={200}

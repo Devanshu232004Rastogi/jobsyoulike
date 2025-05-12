@@ -39,8 +39,8 @@ export const AppliedFilters = ({ categories }: AppliedFiltersProps) => {
     <>
       <div className="mt-4 flex items-center gap-4">
         {shiftTimingParams &&
-          Object.entries(shiftTimingParams).map(([key, value]) => (
-            <div>
+          Object.entries(shiftTimingParams).map(([key, value], index) => (
+            <div key={`shift-${key}-${index}`}>
               {value.split(",").map((item) => (
                 <Button
                   variant="outline"
@@ -55,8 +55,8 @@ export const AppliedFilters = ({ categories }: AppliedFiltersProps) => {
           ))}
 
         {workingModesPatams &&
-          Object.entries(workingModesPatams).map(([key, value]) => (
-            <>
+          Object.entries(workingModesPatams).map(([key, value], index) => (
+            <React.Fragment key={`work-${key}-${index}`}>
               {value.split(",").map((item) => (
                 <Button
                   variant="outline"
@@ -67,12 +67,12 @@ export const AppliedFilters = ({ categories }: AppliedFiltersProps) => {
                   {item}
                 </Button>
               ))}
-            </>
+            </React.Fragment>
           ))}
 
         {experienceParams &&
-          Object.entries(experienceParams).map(([key, value]) => (
-            <>
+          Object.entries(experienceParams).map(([key, value], index) => (
+            <React.Fragment key={`exp-${key}-${index}`}>
               {value.split(",").map((item) => (
                 <Button
                   variant="outline"
@@ -83,7 +83,7 @@ export const AppliedFilters = ({ categories }: AppliedFiltersProps) => {
                   {item}
                 </Button>
               ))}
-            </>
+            </React.Fragment>
           ))}
 
         {searchParams.get("categoryId") && (
