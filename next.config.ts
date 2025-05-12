@@ -1,16 +1,22 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  images:{
-    remotePatterns:[
+  images: {
+    remotePatterns: [
       {
-        hostname:"utfs.io",
-        port:'',
-        protocol:'https'
-      }
-    ]
-  }
+        protocol: "https",
+        hostname: "fra.cloud.appwrite.io",
+      },
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
+      {
+        protocol: "https", 
+        hostname: "images.clerk.dev",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
