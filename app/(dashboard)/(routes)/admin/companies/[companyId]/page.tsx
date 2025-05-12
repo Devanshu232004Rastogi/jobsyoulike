@@ -1,14 +1,14 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { ArrowLeft, LayoutDashboard, ListCheck, Network } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Network } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-// import { Banner } from "@/components/custom/banner";
+// Already commented out: import { Banner } from "@/components/custom/banner";
 import { IconBadge } from "@/components/custom/icon-badge";
 import NameForm from "./_components/name-form";
 import ImageForm from "./_components/image-form";
 import DescriptionForm from "./_components/description-form";
-import  {
+import {
   CompanySocialContactsForm,
 } from "./_components/social-contact-form";
 import CoverForm from "./_components/cover-form";
@@ -39,6 +39,7 @@ const CompanyEditPage = async ({
     },
   });
 
+  // Commented out as unused
   // const categories = await db.category.findMany({
   //   orderBy: { name: "asc" },
   // });
@@ -84,8 +85,6 @@ const CompanyEditPage = async ({
         </div>
       </div>
 
-     
-
       {/* Grid layout for left and right panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
         {/* Left Column */}
@@ -114,8 +113,8 @@ const CompanyEditPage = async ({
         </div>
       </div>
       <div className="col-span-2">
-        <CompanyCompleteOverview  initialData={company} companyId={company.id} />
-        <JoinUsForm  initialData={company} companyId={company.id} />
+        <CompanyCompleteOverview initialData={company} companyId={company.id} />
+        <JoinUsForm initialData={company} companyId={company.id} />
       </div>
     </div>
   );
