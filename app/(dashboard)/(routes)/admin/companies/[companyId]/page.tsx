@@ -12,35 +12,38 @@ import CoverForm from "./_components/cover-form";
 import CompanyCompleteOverview from "./_components/company-overview";
 import JoinUsForm from "./_components/join-us-form";
 
-// Define the correct type for the page props according to Next.js App Router
-interface CompanyEditPageProps {
-  params: {
-    companyId: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
-// The correct way to define a page component in Next.js App Router
-const CompanyEditPage = async ({ params }: CompanyEditPageProps) => {
+// Create a separate function for the main content logic
+async function getCompanyData(companyId: string) {
   const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
-  if (!validObjectIdRegex.test(params.companyId)) {
-    return redirect("/admin/companies");
+  if (!validObjectIdRegex.test(companyId)) {
+    return null;
   }
 
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/");
+    return null;
   }
 
   const company = await db.company.findUnique({
     where: {
-      id: params.companyId,
+      id: companyId,
       userId,
     },
   });
 
+  return company;
+}
+
+// Using the correct Next.js App Router page component format
+export default async function Page({
+  params,
+}: {
+  params: { companyId: string };
+}) {
+  const company = await getCompanyData(params.companyId);
+
   if (!company) {
-    return redirect("/admin/companies");
+    redirect("/admin/companies");
   }
 
   const requireFields = [
@@ -131,6 +134,4 @@ const CompanyEditPage = async ({ params }: CompanyEditPageProps) => {
       </div>
     </div>
   );
-};
-
-export default CompanyEditPage;
+}
