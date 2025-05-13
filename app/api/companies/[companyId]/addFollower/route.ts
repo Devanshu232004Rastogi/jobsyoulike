@@ -14,7 +14,7 @@ export const PATCH = async (
       return new NextResponse("Unauthorized", { status: 401 });
     }
     if (!companyId) {
-      return new NextResponse("ID is missing ", { status: 401 });
+      return new NextResponse("ID is missing", { status: 401 });
     }
 
     const company = await db.company.findUnique({
@@ -23,9 +23,13 @@ export const PATCH = async (
       },
     });
 
+    // Correct syntax for updating an array in Prisma
     const updatedData = {
-      followers:company?.followers?{push:userId}:[userId],
-    }
+      followers: {
+        push: userId,
+      },
+    };
+
     const updatedCompany = await db.company.update({
       where: {
         id: params.companyId,
@@ -40,6 +44,3 @@ export const PATCH = async (
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 };
-
-
-
