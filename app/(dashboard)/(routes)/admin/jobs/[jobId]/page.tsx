@@ -1,16 +1,24 @@
-
-import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
-import {
-  ArrowLeft,
-  Building2,
-  File,
-  LayoutDashboard,
-  ListCheck,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
+// Main component that receives props from Next.js router
+export default function Page(props) {
+  // Extract jobId from props, regardless of how it's nested
+  const jobId = props.params?.jobId;
+
+  return (
+    <Suspense fallback={<div>Loading job details...</div>}>
+      <JobDetailsPageContent jobId={jobId} />
+    </Suspense>
+  );
+}
+
+// Separate async server component to handle the data fetching and content rendering
+import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
+import { Building2, File, LayoutDashboard, ListCheck } from "lucide-react";
 import { JobPublishActions } from "./_components/jobs-publish-action";
 import { Banner } from "@/components/custom/banner";
 import { IconBadge } from "@/components/custom/icon-badge";
@@ -27,25 +35,22 @@ import TagsForm from "./_components/tags-form";
 import CompanyForm from "./_components/company-form";
 import { AttachmentsForm } from "./_components/attachment-form";
 
-interface JobDetailsPageProps {
-  params: {
-    jobId: string;
-  };
-}
-
-const JobDetailsPage = async ( { params }: JobDetailsPageProps) => {
-  const jobId =  params.jobId;
-
+async function JobDetailsPageContent({ jobId }) {
+  // Validation
   const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
   if (!validObjectIdRegex.test(jobId)) {
-    return redirect("/admin/jobs");
+    redirect("/admin/jobs");
+    return null;
   }
 
+  // Auth check
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/");
+    redirect("/");
+    return null;
   }
 
+  // Fetch job data
   const job = await db.job.findUnique({
     where: {
       id: jobId,
@@ -61,9 +66,11 @@ const JobDetailsPage = async ( { params }: JobDetailsPageProps) => {
   });
 
   if (!job) {
-    return redirect("/admin/jobs");
+    redirect("/admin/jobs");
+    return null;
   }
 
+  // Fetch categories and companies
   const categories = await db.category.findMany({
     orderBy: { name: "asc" },
   });
@@ -73,6 +80,7 @@ const JobDetailsPage = async ( { params }: JobDetailsPageProps) => {
     orderBy: { name: "asc" },
   });
 
+  // Calculate completion stats
   const requireFields = [
     job.title,
     job.description,
@@ -179,6 +187,4 @@ const JobDetailsPage = async ( { params }: JobDetailsPageProps) => {
       </div>
     </div>
   );
-};
-
-export default JobDetailsPage;
+}
