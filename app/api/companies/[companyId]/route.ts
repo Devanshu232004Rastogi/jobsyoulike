@@ -4,31 +4,40 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ companyId: string }> }
+  { params }: { params: { companyId: string } }
 ) {
   try {
-    const { companyId } = await params;
+    const { companyId } = params;
     const { userId } = await auth();
-    const updatedVal = await req.json();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (!companyId) {
-      return new NextResponse("ID is missing", { status: 401 });
-    }
 
-    const company = await db.company.update({
+    // Fetch the company first
+    const company = await db.company.findUnique({
       where: {
         id: companyId,
-        userId, // Only allow the company owner to update
       },
-      data: { ...updatedVal },
     });
 
-    return NextResponse.json(company);
+    if (!company) {
+      return new NextResponse("Company not found", { status: 404 });
+    }
+
+    // Remove the userId from the followers array
+    const updatedCompany = await db.company.update({
+      where: { id: companyId },
+      data: {
+        followers: {
+          set: company.followers.filter((id: string) => id !== userId),
+        },
+      },
+    });
+
+    return NextResponse.json(updatedCompany);
   } catch (error) {
-    console.error(`[COMPANY_PATCH]: ${error}`);
+    console.error("[REMOVE_FOLLOWER_PATCH]", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
