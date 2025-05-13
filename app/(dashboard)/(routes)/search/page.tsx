@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoriesList } from "./_components/categories-list";
 import { PageContent } from "./_components/page-content";
 import { AppliedFilters } from "./_components/applied-filters";
-
+import { Suspense } from "react";
 type SearchProps = {
   searchParams: Promise<{
     title: string;
@@ -34,7 +34,9 @@ const SearchPage = async ({ searchParams }: SearchProps) => {
   return (
     <div className="p-6">
       <div className="px-6 pt-6 block md:hidden md:mb-0">
-        <SearchContainer />
+        <Suspense>
+          <SearchContainer />
+        </Suspense>
       </div>
 
       <div className="pt-6">
