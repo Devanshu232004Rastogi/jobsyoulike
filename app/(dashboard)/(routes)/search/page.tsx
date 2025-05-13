@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata, ResolvingMetadata } from "next";
 import { SearchContainer } from "@/components/custom/search-container";
 import { CategoriesWrapper } from "./_components/categories-wrapper";
@@ -20,11 +21,12 @@ export async function generateMetadata(
   };
 }
 
-// The main page component now correctly uses the Props type
-export default async function SearchPage({ searchParams }: Props) {
-  // Await the searchParams Promise to get the actual values
-  const resolvedSearchParams = await searchParams;
-
+// Separate client component to contain the page content
+function SearchPageContent({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   return (
     <div className="p-6">
       <div className="px-6 pt-6 block md:hidden md:mb-0">
@@ -32,14 +34,25 @@ export default async function SearchPage({ searchParams }: Props) {
       </div>
 
       <div className="pt-6">
-        {/* Categories section */}
-        <CategoriesWrapper searchParams={resolvedSearchParams} />
-
+        <CategoriesWrapper searchParams={searchParams} />
         {/* Applied filters would go here */}
-
-        {/* Jobs section */}
-        <JobsWrapper searchParams={resolvedSearchParams} />
+        <JobsWrapper searchParams={searchParams} />
       </div>
     </div>
+  );
+}
+
+// The main page component now correctly uses the Props type
+export default async function SearchPage({ searchParams }: Props) {
+  // Await the searchParams Promise to get the actual values
+  const resolvedSearchParams = await searchParams;
+
+  return (
+    // Wrap the entire page content in Suspense to handle useSearchParams()
+    <Suspense
+      fallback={<div className="text-center p-10">Loading search page...</div>}
+    >
+      <SearchPageContent searchParams={resolvedSearchParams} />
+    </Suspense>
   );
 }
