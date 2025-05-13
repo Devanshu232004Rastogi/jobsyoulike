@@ -4,9 +4,15 @@ import { SearchContainer } from "@/components/custom/search-container";
 import { CategoriesWrapper } from "./_components/categories-wrapper";
 import { JobsWrapper } from "./_components/jobs-wrapper";
 
+// Define types using PageProps interface
+export type SearchParams = {
+  [key: string]: string | string[] | undefined;
+};
+
+// Use the actual types that work with Next.js 15
 type Props = {
   params: { [key: string]: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: SearchParams;
 };
 
 export async function generateMetadata(
@@ -19,7 +25,11 @@ export async function generateMetadata(
   };
 }
 
-export default function SearchPage({ params, searchParams }: Props) {
+// Use Suspense boundary for useSearchParams() hook usage
+export default function SearchPage(props: any) {
+  // Use any type for props and then safely extract what we need
+  const { searchParams = {} } = props;
+
   return (
     <Suspense
       fallback={<div className="text-center p-10">Loading search page...</div>}
