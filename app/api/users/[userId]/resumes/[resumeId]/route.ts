@@ -4,20 +4,15 @@ import { client, appwriteConfig } from "@/config/appwrite-config";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// Define the proper type for route parameters
-type RouteContext = {
-  params: {
-    userId: string;
-    resumeId: string;
-  };
-};
-
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { userId: string; resumeId: string } }
+) {
   console.log("[RESUME_DELETE] Request received");
-  console.log("[RESUME_DELETE] Params:", context.params);
+  console.log("[RESUME_DELETE] Params:", params);
 
   try {
-    const { userId, resumeId } = context.params;
+    const { userId, resumeId } = params;
     console.log("[RESUME_DELETE] UserID from params:", userId);
     console.log("[RESUME_DELETE] ResumeID from params:", resumeId);
 
