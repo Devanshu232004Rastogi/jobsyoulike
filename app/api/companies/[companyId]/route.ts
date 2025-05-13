@@ -2,10 +2,10 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export const PATCH = async (
+export async function PATCH(
   req: Request,
   { params }: { params: { companyId: string } }
-) => {
+) {
   try {
     const { userId } = await auth();
     const { companyId } = params;
@@ -23,7 +23,7 @@ export const PATCH = async (
         id: params.companyId,
         userId, // ensure user can only edit their own company
       },
-      data: {...updatedVal},
+      data: { ...updatedVal },
     });
 
     return NextResponse.json(company);
@@ -31,4 +31,4 @@ export const PATCH = async (
     console.log(`[COMPANY_PATCH]: ${error}`);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-};
+}

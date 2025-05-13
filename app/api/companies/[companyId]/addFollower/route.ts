@@ -2,14 +2,14 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// Corrected route handler with proper Next.js 13+ type signature
+// The correct type signature for Next.js 13+ dynamic route handlers
 export async function PATCH(
-  req: Request,
-  { params }: { params: { companyId: string } }
+  request: Request,
+  context: { params: { companyId: string } }
 ) {
   try {
     const { userId } = await auth();
-    const { companyId } = params;
+    const { companyId } = context.params;
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
