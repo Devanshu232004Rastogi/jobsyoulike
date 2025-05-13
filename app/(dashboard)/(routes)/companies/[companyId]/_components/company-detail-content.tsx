@@ -24,29 +24,28 @@ export const CompanyDetailContentPage = ({
 }: CompanyDetailContentPageProps) => {
   const isFollower = userId && company?.followers?.includes(userId);
   const [isLoading, setisLoading] = useState(false);
-const router = useRouter();
-  
+  const router = useRouter();
 
-const onClickAddRemoveFollower = async () => {
-  try {
-    setisLoading(true);
-    
-    if (isFollower) {
-      await axios.patch(`/api/companies/${company?.id}/removeFollower`);
-      toast.success("Un-Followed");
-    } else {
-      await axios.patch(`/api/companies/${company?.id}/addFollower`);
-      toast.success("Following");
+  const onClickAddRemoveFollower = async () => {
+    try {
+      setisLoading(true);
+
+      if (isFollower) {
+        await axios.patch(`/api/companies/${company?.id}/removeFollower`);
+        toast.success("Un-Followed");
+      } else {
+        await axios.patch(`/api/companies/${company?.id}/addFollower`);
+        toast.success("Following");
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.log("Error : ", error);
+      toast.error((error as Error)?.message);
+    } finally {
+      setisLoading(false);
     }
-
-    router.refresh();
-  } catch (error) {
-    console.log("Error : ", error);
-    toast.error((error as Error)?.message);
-  } finally {
-    setisLoading(false);
-  }
-};
+  };
   return (
     <div className="w-full rounded-2xl bg-white p-4 z-50 -mt-8">
       <div className="flex  justify-between  w-full px-4">
@@ -100,15 +99,11 @@ const onClickAddRemoveFollower = async () => {
                 </p>
               </div>
             </div>
-          
           </div>
-
-          
-          
         </div>
-        
-        <div >
-        <Button
+
+        <div>
+          <Button
             onClick={onClickAddRemoveFollower}
             className={cn(
               "w-24 rounded-full hover:shadow-md flex items-center justify-center border border-purple-500",
@@ -132,9 +127,7 @@ const onClickAddRemoveFollower = async () => {
           </Button>
         </div>
       </div>
-      <TabContentSection  jobs={jobs} company={company} userId={userId}/>
-
+      <TabContentSection jobs={jobs} company={company} userId={userId} />
     </div>
-    
   );
 };
