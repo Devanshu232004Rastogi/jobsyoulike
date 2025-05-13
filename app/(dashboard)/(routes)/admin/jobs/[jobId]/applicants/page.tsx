@@ -1,23 +1,40 @@
 import { DataTable } from "@/components/custom/data-table";
+import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
+
+// Main component that receives props from Next.js router
+export default function Page(props) {
+  // Extract jobId from props, regardless of how it's nested
+  const jobId = props.params?.jobId;
+  
+  return (
+    <Suspense fallback={<div>Loading applicants...</div>}>
+      <JobApplicantsPageContent jobId={jobId} />
+    </Suspense>
+  );
+}
+// Separate async server component to handle the data fetching and content rendering
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { ApplicantColumns, column } from "./_components/applicants-columns";
-import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
-import { PageProps } from "@/types/page"; // Import the PageProps type
 
-// Use the PageProps type that expects params to be a Promise
-const JobApplicantsPage = async ({ params }: PageProps) => {
-  // Resolve the params Promise
-  const resolvedParams = await params;
-  const jobId = resolvedParams.jobId;
-
-  const { userId } = await auth();
-
-  if (!userId) {
-    return redirect("/");
+async function JobApplicantsPageContent({ jobId }) {
+  // Validation
+  const validObjectIdRegex = /^[0-9a-fA-F]{24}$/;
+  if (!validObjectIdRegex.test(jobId)) {
+    redirect("/admin/jobs");
+    return null;
   }
 
+  // Auth check
+  const { userId } = await auth();
+  if (!userId) {
+    redirect("/");
+    return null;
+  }
+
+  // Fetch job data
   const job = await db.job.findUnique({
     where: {
       id: jobId,
@@ -26,9 +43,11 @@ const JobApplicantsPage = async ({ params }: PageProps) => {
   });
 
   if (!job) {
-    return redirect("/admin/jobs");
+    redirect("/admin/jobs");
+    return null;
   }
 
+  // Fetch user profiles
   let profiles = await db.userProfile.findMany({
     include: {
       resumes: {
@@ -40,25 +59,12 @@ const JobApplicantsPage = async ({ params }: PageProps) => {
     },
   });
 
-  const jobs = await db.job.findMany({
-    where: {
-      userId: userId as string,
-    },
-    include: {
-      company: true,
-      category: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  // Filter profiles for the specific job
+  const filteredProfiles = profiles.filter((profile) =>
+    profile.appliedJobs.some((appliedJob) => appliedJob.jobId === jobId)
+  );
 
-  const filteredProfiles =
-    profiles &&
-    profiles.filter((profile) =>
-      profile.appliedJobs.some((appliedJob) => appliedJob.jobId === jobId)
-    );
-
+  // Format profiles for the data table
   const formattedProfiles: ApplicantColumns[] = filteredProfiles.map(
     (profile) => ({
       id: profile.userId,
@@ -106,6 +112,4 @@ const JobApplicantsPage = async ({ params }: PageProps) => {
       </div>
     </div>
   );
-};
-
-export default JobApplicantsPage;
+}
