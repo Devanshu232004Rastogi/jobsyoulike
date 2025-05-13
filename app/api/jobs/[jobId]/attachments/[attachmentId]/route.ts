@@ -2,22 +2,23 @@ import { client, appwriteConfig } from "@/config/appwrite-config";
 import { Storage } from "appwrite";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const DELETE = async (
-  req: Request,
-  { params }: { params: { jobId: string; attachmentId: string } }
-) => {
+type RouteContext = {
+  params: Promise<{ jobId: string; attachmentId: string }>;
+};
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { userId } =  await auth();
-    const { jobId, attachmentId } = params;
+    const { jobId, attachmentId } = await context.params;
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Un-Authorized", { status: 401 });
     }
 
     if (!jobId) {
-      return new NextResponse("ID Is missing", { status: 401 });
+      return new NextResponse("Job ID is missing", { status: 400 });
     }
 
     const attachment = await db.attachment.findUnique({
@@ -26,7 +27,7 @@ export const DELETE = async (
       },
     });
 
-    if (!attachment || attachment.jobId !== params.jobId) {
+    if (!attachment || attachment.jobId !== jobId) {
       return new NextResponse("Attachment not found", { status: 404 });
     }
 
@@ -43,10 +44,7 @@ export const DELETE = async (
     const storage = new Storage(client);
 
     // Delete from Appwrite storage
-    await storage.deleteFile(
-      appwriteConfig.storageBucketId,
-      fileId
-    );
+    await storage.deleteFile(appwriteConfig.storageBucketId, fileId);
 
     // Delete from MongoDB
     await db.attachment.delete({
@@ -60,6 +58,4 @@ export const DELETE = async (
     console.log(`[ATTACHMENT_DELETE] : ${error}`);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-};
-
-
+}
