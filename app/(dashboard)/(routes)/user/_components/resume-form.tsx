@@ -1,5 +1,3 @@
-
-
 "use client";
 
 // import { AttachmentsUploads } from "@/";
@@ -15,7 +13,7 @@ import {
 // import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {  UserProfile, Resume } from "@/lib/generated/prisma";
+import { UserProfile, Resume } from "@/lib/generated/prisma";
 import axios from "axios";
 import {
   File,
@@ -45,7 +43,6 @@ const formSchema = z.object({
 });
 
 export const ResumeForm = ({ initialData, userId }: ResumeFormProps) => {
-
   const [isEditing, setIsEditing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isActiveResumeId, setIsActiveResumeId] = useState<string | null>(null);
@@ -78,7 +75,7 @@ export const ResumeForm = ({ initialData, userId }: ResumeFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values, userId);
     try {
-    await axios.post(`/api/users/${userId}/resumes`, values);
+      await axios.post(`/api/users/${userId}/resumes`, values);
       toast.success("Resume updated");
       toggleEditing();
       router.refresh();
@@ -109,22 +106,24 @@ export const ResumeForm = ({ initialData, userId }: ResumeFormProps) => {
   // };
   const onDelete = async (resume: Resume) => {
     try {
-      console.log(resume.id)
+      console.log(resume.id);
       setDeletingId(resume.id);
-      
+
       // Check if this is the active resume
       if (initialData?.activeResumeId === resume.id) {
         toast.error("Can't delete the active resume");
         return;
       }
-      
+
       console.log("Deleting resume with id:", resume.id);
       console.log("User ID:", userId);
       console.log("API endpoint:", `/api/users/${userId}/resumes/${resume.id}`);
-      
+
       // Make the DELETE request
-      const response = await axios.delete(`/api/users/${userId}/resumes/${resume.id}`);
-      
+      const response = await axios.delete(
+        `/api/users/${userId}/resumes/${resume.id}`
+      );
+
       console.log("Delete response:", response.data);
       toast.success("Resume removed");
       router.refresh();
@@ -140,7 +139,7 @@ export const ResumeForm = ({ initialData, userId }: ResumeFormProps) => {
   };
   const setActiveResumeId = async (resumeId: string) => {
     setIsActiveResumeId(resumeId);
-     await axios.patch(`/api/users/${userId}`, {
+    await axios.patch(`/api/users/${userId}`, {
       activeResumeId: resumeId,
     });
     toast.success("Resume Activated");
@@ -260,7 +259,11 @@ export const ResumeForm = ({ initialData, userId }: ResumeFormProps) => {
                 <FormItem>
                   <FormControl>
                     <AttachmentsUploads
-                      value={field.value}
+                      value={field.value.filter(
+                        (a): a is { url: string; name: string } =>
+                          typeof a.url === "string" &&
+                          typeof a.name === "string"
+                      )}
                       disabled={isSubmitting}
                       onChange={(resumes) => {
                         if (resumes) {
