@@ -5,23 +5,39 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoriesList } from "./_components/categories-list";
 import { PageContent } from "./_components/page-content";
 import { AppliedFilters } from "./_components/applied-filters";
-import { Suspense } from "react";
 
-// Define the interface according to Next.js PageProps
-// The searchParams is correctly typed as its own object
-interface SearchPageProps {
-  searchParams: {
-    title?: string;
-    categoryId?: string;
-    createdAtFilter?: string;
-    yearsOfExperience?: string;
-    workMode?: string;
-    shiftTiming?: string;
-  };
-}
+// Remove the custom interface and use Next.js's built-in page props pattern
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  // Parse the search parameters
+  const title = searchParams.title as string;
+  const categoryId = searchParams.categoryId as string;
+  const createdAtFilter = searchParams.createdAtFilter as string;
+  const yearsOfExperience = searchParams.yearsOfExperience as string;
+  const workMode = searchParams.workMode as string;
+  const shiftTiming = searchParams.shiftTiming as string;
 
-// This is the main component using the correct Next.js page props
-export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const categories = await db.category.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const { userId } = await auth();
+  const jobs = await getJobs({
+    title,
+    categoryId,
+    createdAtFilter,
+    yearsOfExperience,
+    workMode,
+    shiftTiming,
+  });
+
+  console.log(`Jobs count : ${jobs.length}`);
+
   return (
     <div className="p-6">
       <div className="px-6 pt-6 block md:hidden md:mb-0">
@@ -29,59 +45,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
 
       <div className="pt-6">
-        <Suspense fallback={<div>Loading categories...</div>}>
-          <CategoriesSection />
-        </Suspense>
+        {/* categories */}
+        <CategoriesList categories={categories} />
 
-        <AppliedFiltersSection
-          categories={await getCategories()}
-          searchParams={searchParams}
-        />
+        {/* applied filters */}
+        <AppliedFilters categories={categories} />
 
-        <Suspense fallback={<div>Loading jobs...</div>}>
-          <JobsSection searchParams={searchParams} />
-        </Suspense>
+        {/* Page content */}
+        <PageContent jobs={jobs} userId={userId} />
       </div>
     </div>
   );
-}
-
-// Separate component to handle category fetching
-async function CategoriesSection() {
-  const categories = await getCategories();
-
-  return <CategoriesList categories={categories} />;
-}
-
-// Helper function to get categories
-async function getCategories() {
-  return db.category.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
-}
-
-// Component to handle applied filters
-function AppliedFiltersSection({
-  categories,
-  searchParams,
-}: {
-  categories: any[];
-  searchParams: SearchPageProps["searchParams"];
-}) {
-  return <AppliedFilters categories={categories} />;
-}
-
-// Component to handle job fetching and display
-async function JobsSection({
-  searchParams,
-}: {
-  searchParams: SearchPageProps["searchParams"];
-}) {
-  const { userId } = await auth();
-  const jobs = await getJobs({ ...searchParams });
-  console.log(`Jobs count: ${jobs.length}`);
-
-  return <PageContent jobs={jobs} userId={userId} />;
 }
