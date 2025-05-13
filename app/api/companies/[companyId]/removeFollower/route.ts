@@ -1,49 +1,46 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH (
-  req: Request,
-  { params }: { params: { companyId: string } }
-)  {
+interface RouteParams {
+  params: {
+    companyId: string;
+  };
+}
+
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const { userId } = await auth();
     const { companyId } = params;
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (!companyId) {
-      return new NextResponse("ID is missing ", { status: 401 });
-    }
 
+    // Fetch the company first
     const company = await db.company.findUnique({
       where: {
-        id: params.companyId,
+        id: companyId,
       },
     });
+
     if (!company) {
-      return new NextResponse("Company Not Found ", { status: 401 });
+      return new NextResponse("Company not found", { status: 404 });
     }
-    const userIndex = company.followers.indexOf(userId);
-    if (userIndex !== -1) {
-      const updatedFollowers = company.followers.filter(
-        (followerId) => followerId !== userId
-      );
 
-      const updatedCompany = await db.company.update({
-        where: { id: companyId },
-        data: { followers: { set: updatedFollowers } },
-      });
+    // Remove the userId from the followers array
+    const updatedCompany = await db.company.update({
+      where: { id: companyId },
+      data: {
+        followers: {
+          set: company.followers.filter((id: string) => id !== userId),
+        },
+      },
+    });
 
-      return new NextResponse(JSON.stringify(updatedCompany), { status: 200 });
-    } else {
-      return new NextResponse("User not found in the followers", {
-        status: 404,
-      });
-    }
+    return NextResponse.json(updatedCompany);
   } catch (error) {
-    console.log("[COMPANY_PATCH_ERROR]", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("[REMOVE_FOLLOWER_PATCH]", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
-};
+}
