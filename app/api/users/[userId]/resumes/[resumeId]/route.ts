@@ -2,10 +2,10 @@ import { db } from "@/lib/db";
 import { Storage } from "appwrite";
 import { client, appwriteConfig } from "@/config/appwrite-config";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { userId: string; resumeId: string } }
 ) {
   console.log("[RESUME_DELETE] Request received");
