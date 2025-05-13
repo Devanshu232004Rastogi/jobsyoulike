@@ -1,81 +1,87 @@
+import { getJobs } from "@/actions/get-jobs";
+import { SearchContainer } from "@/components/custom/search-container";
+import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
+import { CategoriesList } from "./_components/categories-list";
+import { PageContent } from "./_components/page-content";
+import { AppliedFilters } from "./_components/applied-filters";
 import { Suspense } from "react";
-// import { SearchPageContent } from "./_components/search-page-content";
 
-interface SearchProps {
+// Define the interface according to Next.js PageProps
+// The searchParams is correctly typed as its own object
+interface SearchPageProps {
   searchParams: {
-    title: string;
-    categoryId: string;
-    createdAtFilter: string;
-    yearsOfExperience: string;
-    workMode: string;
-    shiftTiming: string;
+    title?: string;
+    categoryId?: string;
+    createdAtFilter?: string;
+    yearsOfExperience?: string;
+    workMode?: string;
+    shiftTiming?: string;
   };
 }
 
-// Main component that receives props from Next.js router
-export default function SearchPage({ searchParams }: SearchProps) {
+// This is the main component using the correct Next.js page props
+export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="p-6">
       <div className="px-6 pt-6 block md:hidden md:mb-0">
-        <Suspense fallback={<div>Loading search...</div>}>
-          <SearchContainer />
-        </Suspense>
+        <SearchContainer />
       </div>
 
       <div className="pt-6">
         <Suspense fallback={<div>Loading categories...</div>}>
-          <CategoriesListWrapper />
+          <CategoriesSection />
         </Suspense>
 
-        <Suspense fallback={<div>Loading filters...</div>}>
-          <AppliedFiltersWrapper searchParams={searchParams} />
-        </Suspense>
+        <AppliedFiltersSection
+          categories={await getCategories()}
+          searchParams={searchParams}
+        />
 
         <Suspense fallback={<div>Loading jobs...</div>}>
-          <PageContentWrapper searchParams={searchParams} />
+          <JobsSection searchParams={searchParams} />
         </Suspense>
       </div>
     </div>
   );
 }
 
-// Separate component imports to prevent them being loaded in the main component
-import { SearchContainer } from "@/components/custom/search-container";
-
-// Wrapper components for async content
-const CategoriesListWrapper = async () => {
-  const { CategoriesList } = await import("./_components/categories-list");
-  const { db } = await import("@/lib/db");
-
-  const categories = await db.category.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
+// Separate component to handle category fetching
+async function CategoriesSection() {
+  const categories = await getCategories();
 
   return <CategoriesList categories={categories} />;
-};
+}
 
-const AppliedFiltersWrapper = async ({ searchParams }) => {
-  const { AppliedFilters } = await import("./_components/applied-filters");
-  const { db } = await import("@/lib/db");
-
-  const categories = await db.category.findMany({
+// Helper function to get categories
+async function getCategories() {
+  return db.category.findMany({
     orderBy: {
       name: "asc",
     },
   });
+}
 
+// Component to handle applied filters
+function AppliedFiltersSection({
+  categories,
+  searchParams,
+}: {
+  categories: any[];
+  searchParams: SearchPageProps["searchParams"];
+}) {
   return <AppliedFilters categories={categories} />;
-};
+}
 
-const PageContentWrapper = async ({ searchParams }) => {
-  const { PageContent } = await import("./_components/page-content");
-  const { getJobs } = await import("@/actions/get-jobs");
-  const { auth } = await import("@clerk/nextjs/server");
-
+// Component to handle job fetching and display
+async function JobsSection({
+  searchParams,
+}: {
+  searchParams: SearchPageProps["searchParams"];
+}) {
   const { userId } = await auth();
   const jobs = await getJobs({ ...searchParams });
+  console.log(`Jobs count: ${jobs.length}`);
 
   return <PageContent jobs={jobs} userId={userId} />;
-};
+}
