@@ -1,6 +1,4 @@
 import { db } from "@/lib/db";
-import { client, appwriteConfig } from "@/config/appwrite-config";
-import { Storage } from "appwrite";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,27 +10,38 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const { jobId } = await context.params;
     const { userId } = await auth();
-    const updatedVal = await request.json();
-
+    
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-
+    
     if (!jobId) {
       return new NextResponse("Job ID is missing", { status: 400 });
     }
-
-    const job = await db.job.update({
+    
+    const job = await db.job.findUnique({
       where: {
         id: jobId,
-        userId, // ensure user can only edit their own job
+        userId,
       },
-      data: { ...updatedVal },
     });
-
-    return NextResponse.json(job);
+    
+    if (!job) {
+      return new NextResponse("Job Not Found", { status: 404 });
+    }
+    
+    const publishJob = await db.job.update({
+      where: {
+        id: jobId,
+      },
+      data: {
+        isPublished: false,
+      },
+    });
+    
+    return NextResponse.json(publishJob);
   } catch (error) {
-    console.log(`[JOB_PATCH]: ${error}`);
+    console.error("[JOB_PUBLISH_PATCH]:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

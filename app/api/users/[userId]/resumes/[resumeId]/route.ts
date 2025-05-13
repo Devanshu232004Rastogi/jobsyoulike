@@ -1,74 +1,73 @@
 import { db } from "@/lib/db";
-import { Storage } from "appwrite";
 import { client, appwriteConfig } from "@/config/appwrite-config";
+import { Storage } from "appwrite";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { userId: string; resumeId: string } }
-) {
-  console.log("[RESUME_DELETE] Request received");
-  console.log("[RESUME_DELETE] Params:", params);
+type RouteContext = {
+  params: Promise<{ userId: string; resumeId: string }>;
+};
 
+export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { userId, resumeId } = params;
-    console.log("[RESUME_DELETE] UserID from params:", userId);
-    console.log("[RESUME_DELETE] ResumeID from params:", resumeId);
-
-    // Authentication check
+    const { userId, resumeId } = await context.params;
     const { userId: authenticatedUserId } = await auth();
-    console.log("[RESUME_DELETE] Authenticated user:", authenticatedUserId);
 
     if (!authenticatedUserId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     if (authenticatedUserId !== userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    if (!resumeId) {
+      return new NextResponse("Resume ID is missing", { status: 400 });
     }
 
     // Find the resume
     const resume = await db.resume.findUnique({
-      where: { id: resumeId },
+      where: {
+        id: resumeId,
+        userId: authenticatedUserId, // Ensure the resume belongs to the authenticated user
+      },
     });
 
-    console.log("[RESUME_DELETE] Found resume:", resume);
-
     if (!resume) {
-      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+      return new NextResponse("Resume Not Found", { status: 404 });
     }
 
-    // Extract file ID from Appwrite URL
+    // Initialize Appwrite storage
+    const storage = new Storage(client);
+
+    // Delete resume file if it exists
     if (resume.url) {
-      const fileIdMatch = resume.url.match(/\/files\/([^/]+)\/view/);
-      const fileId = fileIdMatch ? fileIdMatch[1] : null;
-      console.log("[RESUME_DELETE] File ID:", fileId);
+      try {
+        // Extract file ID from the Appwrite URL
+        const fileIdMatch = resume.url.match(/\/files\/([^/]+)\/view/);
+        const fileId = fileIdMatch ? fileIdMatch[1] : null;
 
-      // Initialize Appwrite storage
-      const storage = new Storage(client);
-
-      // Delete from Appwrite storage if fileId exists
-      if (fileId) {
-        await storage.deleteFile(appwriteConfig.storageBucketId, fileId);
+        if (fileId) {
+          await storage.deleteFile(appwriteConfig.storageBucketId, fileId);
+        }
+      } catch (fileError) {
+        console.log(`[RESUME_FILE_DELETE_ERROR]: ${fileError}`);
+        // Continue with resume deletion even if file deletion fails
       }
-    } else {
-      console.log("[RESUME_DELETE] No URL found for resume");
     }
 
-    // Delete from database
+    // Delete the resume from the database
     await db.resume.delete({
       where: {
         id: resumeId,
       },
     });
 
-    return NextResponse.json({ message: "Resume deleted successfully" });
+    return NextResponse.json({
+      message: "Resume and associated file deleted successfully",
+    });
   } catch (error) {
-    console.error("[RESUME_DELETE] Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.log(`[RESUME_DELETE_ERROR]: ${error}`);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
