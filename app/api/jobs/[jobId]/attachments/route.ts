@@ -1,25 +1,26 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { Attachment } from "@/lib/generated/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (
-  req: Request,
-  { params }: { params: { jobId: string } }
-) => {
+type RouteContext = {
+  params: Promise<{ jobId: string }>;
+};
+
+export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const { userId } =await auth();
-    const { jobId } = params;
+    const { jobId } = await context.params;
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Un-Authorized", { status: 401 });
     }
 
     if (!jobId) {
-      return new NextResponse("ID Is missing", { status: 401 });
+      return new NextResponse("Job ID is missing", { status: 400 });
     }
 
-    const { attachments } = await req.json();
+    const { attachments } = await request.json();
 
     if (
       !attachments ||
@@ -34,8 +35,7 @@ export const POST = async (
     for (const attachment of attachments) {
       const { url, name } = attachment;
 
-      //   check the attachment with the same url is already exists for this jobid
-
+      // Check if the attachment with the same URL already exists for this jobId
       const existingAttachment = await db.attachment.findFirst({
         where: {
           jobId,
@@ -44,15 +44,14 @@ export const POST = async (
       });
 
       if (existingAttachment) {
-        // skip the insertion
+        // Skip the insertion
         console.log(
           `Attachment with URL ${url} already exists for jobId ${jobId}`
         );
         continue;
       }
 
-      // create a new attachment
-
+      // Create a new attachment
       const createdAttachment = await db.attachment.create({
         data: {
           url,
@@ -69,4 +68,4 @@ export const POST = async (
     console.log(`[JOB_ATTACHMENT_POST] : ${error}`);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-};
+}
