@@ -6,13 +6,21 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { CompanyDetailContentPage } from "./_components/company-detail-content";
 
-interface CompanyDetailPageProps {
-  params: {
-    companyId: string;
-  };
+import { Suspense } from "react";
+
+// Main component that receives props from Next.js router
+export default function Page(props) {
+  // Extract jobId from props, regardless of how it's nested
+  const companyId = props.params?.companyId;
+
+  return (
+    <Suspense fallback={<div>Loading company details...</div>}>
+      <CompanyDetailPage companyId={companyId} />
+    </Suspense>
+  );
 }
 
-const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
+const CompanyDetailPage = async ({ companyId }) => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -21,7 +29,7 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
 
   const company = await db.company.findUnique({
     where: {
-      id: params.companyId,
+      id: companyId,
     },
   });
 
@@ -31,7 +39,7 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
 
   const jobs = await db.job.findMany({
     where: {
-      companyId: params.companyId,
+      companyId: companyId,
     },
     include: {
       company: true,
@@ -68,5 +76,3 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
     </div>
   );
 };
-
-export default CompanyDetailPage;
