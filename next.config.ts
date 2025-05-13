@@ -1,12 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "fra.cloud.appwrite.io",
+      },
+      {
+        protocol: "https",
+        hostname: "cloud.appwrite.io", // Add this line
       },
       {
         protocol: "https",
@@ -17,14 +20,6 @@ const nextConfig: NextConfig = {
         hostname: "images.clerk.dev",
       },
     ],
-  },
-
-  typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
-    ignoreBuildErrors: true,
   },
 };
 

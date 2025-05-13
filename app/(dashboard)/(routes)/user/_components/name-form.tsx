@@ -45,7 +45,7 @@ export const NameForm = ({ initialData, userId }: NameFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       // Fix the API endpoint path by adding a leading slash
-      await axios.patch(`/api/user/${userId}`, values);
+      await axios.patch(`/api/users/${userId}`, values);
       toast.success("Saved Successfully");
       setIsEditing(false); // Close the edit mode on successful save
       router.refresh();
