@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata, ResolvingMetadata } from "next";
 import { SearchContainer } from "@/components/custom/search-container";
 import { CategoriesWrapper } from "./_components/categories-wrapper";
@@ -15,7 +14,6 @@ export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  // You can customize this based on your search page needs
   return {
     title: "Search Jobs",
     description: "Find your dream job with our advanced search",
@@ -34,23 +32,13 @@ export default async function SearchPage({ searchParams }: Props) {
       </div>
 
       <div className="pt-6">
-        {/* Suspense boundary for category data */}
-        <Suspense
-          fallback={
-            <div className="text-center py-4">Loading categories...</div>
-          }
-        >
-          <CategoriesWrapper searchParams={resolvedSearchParams} />
-        </Suspense>
+        {/* Categories section */}
+        <CategoriesWrapper searchParams={resolvedSearchParams} />
 
         {/* Applied filters would go here */}
 
-        {/* Suspense boundary for job data */}
-        <Suspense
-          fallback={<div className="text-center py-10">Loading jobs...</div>}
-        >
-          <JobsWrapper searchParams={resolvedSearchParams} />
-        </Suspense>
+        {/* Jobs section */}
+        <JobsWrapper searchParams={resolvedSearchParams} />
       </div>
     </div>
   );
