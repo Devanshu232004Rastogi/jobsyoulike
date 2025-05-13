@@ -35,6 +35,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     if (!resume) {
       return new NextResponse("Resume Not Found", { status: 404 });
     }
+    if (!resume || userId !== authenticatedUserId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     // Initialize Appwrite storage
     const storage = new Storage(client);
