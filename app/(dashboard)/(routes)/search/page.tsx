@@ -4,13 +4,11 @@ import { SearchContainer } from "@/components/custom/search-container";
 import { CategoriesWrapper } from "./_components/categories-wrapper";
 import { JobsWrapper } from "./_components/jobs-wrapper";
 
-// Define the proper types for page props in Next.js 15
 type Props = {
-  params: Promise<{ [key: string]: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  params: { [key: string]: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
-// Generate metadata for the page
 export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata
@@ -21,38 +19,21 @@ export async function generateMetadata(
   };
 }
 
-// Separate client component to contain the page content
-function SearchPageContent({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default function SearchPage({ params, searchParams }: Props) {
   return (
-    <div className="p-6">
-      <div className="px-6 pt-6 block md:hidden md:mb-0">
-        <SearchContainer />
-      </div>
-
-      <div className="pt-6">
-        <CategoriesWrapper searchParams={searchParams} />
-        {/* Applied filters would go here */}
-        <JobsWrapper searchParams={searchParams} />
-      </div>
-    </div>
-  );
-}
-
-// The main page component now correctly uses the Props type
-export default async function SearchPage({ searchParams }: Props) {
-  // Await the searchParams Promise to get the actual values
-  const resolvedSearchParams = await searchParams;
-
-  return (
-    // Wrap the entire page content in Suspense to handle useSearchParams()
     <Suspense
       fallback={<div className="text-center p-10">Loading search page...</div>}
     >
-      <SearchPageContent searchParams={resolvedSearchParams} />
+      <div className="p-6">
+        <div className="px-6 pt-6 block md:hidden md:mb-0">
+          <SearchContainer />
+        </div>
+
+        <div className="pt-6">
+          <CategoriesWrapper searchParams={searchParams} />
+          <JobsWrapper searchParams={searchParams} />
+        </div>
+      </div>
     </Suspense>
   );
 }
