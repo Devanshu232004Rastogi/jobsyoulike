@@ -1,11 +1,18 @@
+// app/(dashboard)/(routes)/search/page.tsx
 import { Suspense } from "react";
 import { SearchContainer } from "@/components/custom/search-container";
+import { CategoriesWrapper } from "./_components/categories-wrapper";
+import { JobsWrapper } from "./_components/jobs-wrapper";
+
+// Define proper types for the props
+interface SearchPageProps {
+  searchParams: {
+    [key: string]: string | string[] | undefined;
+  };
+}
 
 // The main page component that receives props from Next.js
-export default function SearchPage(props) {
-  // Extract searchParams from props without typing it
-  const searchParams = props.searchParams || {};
-  
+export default function SearchPage({ searchParams = {} }: SearchPageProps) {
   return (
     <div className="p-6">
       <div className="px-6 pt-6 block md:hidden md:mb-0">
@@ -13,46 +20,24 @@ export default function SearchPage(props) {
       </div>
 
       <div className="pt-6">
-        {/* Use Suspense for all data-dependent components */}
-        <Suspense fallback={<div>Loading categories...</div>}>
-          <SearchPageContent searchParams={searchParams} />
+        {/* Suspense boundary for category data */}
+        <Suspense
+          fallback={
+            <div className="text-center py-4">Loading categories...</div>
+          }
+        >
+          <CategoriesWrapper searchParams={searchParams} />
+        </Suspense>
+
+        {/* Applied filters would go here */}
+
+        {/* Suspense boundary for job data */}
+        <Suspense
+          fallback={<div className="text-center py-10">Loading jobs...</div>}
+        >
+          <JobsWrapper searchParams={searchParams} />
         </Suspense>
       </div>
     </div>
-  );
-}
-
-// Separate component that handles all data fetching
-import { getJobs } from "@/actions/get-jobs";
-import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
-import { CategoriesList } from "./_components/categories-list";
-import { PageContent } from "./_components/page-content";
-import { AppliedFilters } from "./_components/applied-filters";
-
-// This async component handles all data fetching
-async function SearchPageContent({ searchParams }) {
-  const categories = await db.category.findMany({
-    orderBy: {
-      name: "asc",
-    }
-  });
-
-  const { userId } = await auth();
-  const jobs = await getJobs({ ...searchParams });
-  
-  console.log(`Jobs count : ${jobs.length}`);
-
-  return (
-    <>
-      {/* categories */}
-      <CategoriesList categories={categories} />
-      
-      {/* applied filters */}
-      <AppliedFilters categories={categories} />
-      
-      {/* Page content */}
-      <PageContent jobs={jobs} userId={userId} />
-    </>
   );
 }
