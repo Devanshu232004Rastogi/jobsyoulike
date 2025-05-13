@@ -1,30 +1,36 @@
+import { Suspense } from "react";
+import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
+import Box from "@/components/custom/box";
+import { SearchContainer } from "@/components/custom/search-container";
+
+// Main component that receives props from Next.js router
+export default function Page(props) {
+  // Extract searchParams from props
+  const searchParams = props.searchParams || {};
+
+  return (
+    <Suspense fallback={<div>Loading saved jobs...</div>}>
+      <SavedJobsPageContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+// Separate async server component to handle the data fetching and content rendering
 import { getJobs } from "@/actions/get-jobs";
-// import CustomBreadcrumb from "@/components/custom/custom-breadcrumb";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { PageContent } from "../search/_components/page-content";
-import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
-import { SearchContainer } from "@/components/custom/search-container";
-import Box from "@/components/custom/box";
 
-interface SearchProps {
-  searchParams: {
-    title?: string;
-    categoryId?: string;
-    createdAfter?: string;
-    shiftTiming?: string;
-    workMode?: string;
-    yearsOfExperience?: string;
-  };
-}
-
-const SavedJobsPage = async ({ searchParams }: SearchProps) => {
+async function SavedJobsPageContent({ searchParams }) {
+  // Auth check
   const { userId } = await auth();
 
   if (!userId) {
     redirect("/");
+    return null;
   }
 
+  // Fetch jobs with savedJobs filter
   const jobs = await getJobs({ ...searchParams, savedJobs: true });
 
   return (
@@ -47,6 +53,4 @@ const SavedJobsPage = async ({ searchParams }: SearchProps) => {
       </div>
     </div>
   );
-};
-
-export default SavedJobsPage;
+}
