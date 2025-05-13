@@ -2,15 +2,13 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
-interface RouteParams {
-  params: {
-    companyId: string;
-  };
-}
+type RouteContext = {
+  params: Promise<{ companyId: string }>;
+};
 
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const { companyId } = params;
+    const { companyId } = await context.params;
     const { userId } = await auth();
 
     if (!userId) {
