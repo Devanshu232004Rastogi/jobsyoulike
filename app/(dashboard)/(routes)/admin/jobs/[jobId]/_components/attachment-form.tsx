@@ -54,7 +54,6 @@ export const AttachmentsForm = ({
       })
     : [];
 
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -163,7 +162,11 @@ export const AttachmentsForm = ({
                 <FormItem>
                   <FormControl>
                     <AttachmentsUploads
-                      value={field.value}
+                      value={field.value.filter(
+                        (a): a is { url: string; name: string } =>
+                          typeof a.url === "string" &&
+                          typeof a.name === "string"
+                      )}
                       disabled={isSubmitting}
                       onChange={(attachments) => {
                         if (attachments) {
