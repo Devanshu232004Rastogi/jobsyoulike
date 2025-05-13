@@ -4,109 +4,73 @@ import { client, appwriteConfig } from "@/config/appwrite-config";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+// Define the proper type for route parameters
 type RouteContext = {
-  params: { jobId: string; attachmentId: string };
+  params: {
+    userId: string;
+    resumeId: string;
+  };
 };
 
-export async function DELETE(request: Request, { params }: RouteContext) {
-  console.log("[JOB_ATTACHMENT_DELETE] Request received");
-  console.log("[JOB_ATTACHMENT_DELETE] Params:", params);
+export async function DELETE(request: Request, context: RouteContext) {
+  console.log("[RESUME_DELETE] Request received");
+  console.log("[RESUME_DELETE] Params:", context.params);
 
   try {
-    const { jobId, attachmentId } = params;
-    console.log("[JOB_ATTACHMENT_DELETE] JobID:", jobId);
-    console.log("[JOB_ATTACHMENT_DELETE] AttachmentID:", attachmentId);
+    const { userId, resumeId } = context.params;
+    console.log("[RESUME_DELETE] UserID from params:", userId);
+    console.log("[RESUME_DELETE] ResumeID from params:", resumeId);
 
     // Authentication check
-    const { userId } = await auth();
-    console.log("[JOB_ATTACHMENT_DELETE] Authenticated user:", userId);
+    const { userId: authenticatedUserId } = await auth();
+    console.log("[RESUME_DELETE] Authenticated user:", authenticatedUserId);
 
-    if (!userId) {
+    if (!authenticatedUserId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!jobId || !attachmentId) {
-      return NextResponse.json(
-        { error: "Job ID or Attachment ID is missing" },
-        { status: 400 }
-      );
+    if (authenticatedUserId !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Find the attachment
-    const attachment = await db.attachment.findUnique({
-      where: {
-        id: attachmentId,
-      },
-      include: {
-        job: true,
-      },
+    // Find the resume
+    const resume = await db.resume.findUnique({
+      where: { id: resumeId },
     });
 
-    console.log("[JOB_ATTACHMENT_DELETE] Found attachment:", attachment);
+    console.log("[RESUME_DELETE] Found resume:", resume);
 
-    if (!attachment) {
-      return NextResponse.json(
-        { error: "Attachment not found" },
-        { status: 404 }
-      );
+    if (!resume) {
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
-    // Check if the attachment belongs to the specified job
-    if (attachment.jobId !== jobId) {
-      return NextResponse.json(
-        { error: "Attachment does not belong to the specified job" },
-        { status: 403 }
-      );
-    }
-
-    // Check if the authenticated user has permission to delete this attachment
-    // This assumes there's a userId field in your job model
-    // Adjust according to your actual data model
-    if (attachment.job && attachment.job.userId !== userId) {
-      return NextResponse.json(
-        { error: "Unauthorized to delete this attachment" },
-        { status: 403 }
-      );
-    }
-
-    // Extract file ID from Appwrite URL if stored in Appwrite
-    if (attachment.url) {
-      const fileIdMatch = attachment.url.match(/\/files\/([^/]+)\/view/);
+    // Extract file ID from Appwrite URL
+    if (resume.url) {
+      const fileIdMatch = resume.url.match(/\/files\/([^/]+)\/view/);
       const fileId = fileIdMatch ? fileIdMatch[1] : null;
-      console.log("[JOB_ATTACHMENT_DELETE] File ID:", fileId);
+      console.log("[RESUME_DELETE] File ID:", fileId);
 
       // Initialize Appwrite storage
       const storage = new Storage(client);
 
       // Delete from Appwrite storage if fileId exists
       if (fileId) {
-        try {
-          await storage.deleteFile(appwriteConfig.storageBucketId, fileId);
-          console.log(
-            "[JOB_ATTACHMENT_DELETE] File deleted from Appwrite storage"
-          );
-        } catch (storageError) {
-          console.error(
-            "[JOB_ATTACHMENT_DELETE] Error deleting file from storage:",
-            storageError
-          );
-          // Continue with database deletion even if file deletion fails
-        }
+        await storage.deleteFile(appwriteConfig.storageBucketId, fileId);
       }
     } else {
-      console.log("[JOB_ATTACHMENT_DELETE] No URL found for attachment");
+      console.log("[RESUME_DELETE] No URL found for resume");
     }
 
     // Delete from database
-    await db.attachment.delete({
+    await db.resume.delete({
       where: {
-        id: attachmentId,
+        id: resumeId,
       },
     });
 
-    return NextResponse.json({ message: "Attachment deleted successfully" });
+    return NextResponse.json({ message: "Resume deleted successfully" });
   } catch (error) {
-    console.error("[JOB_ATTACHMENT_DELETE] Error:", error);
+    console.error("[RESUME_DELETE] Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
