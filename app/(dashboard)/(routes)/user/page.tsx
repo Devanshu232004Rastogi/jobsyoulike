@@ -64,7 +64,7 @@ const ProfilePage = async () => {
       createdAt: "desc",
     },
   });
-
+  
   const filteredAppliedJobs =
     profile && profile.appliedJobs.length > 0
       ? jobs
@@ -129,53 +129,55 @@ const ProfilePage = async () => {
         </div>
       </div>
 
+
       <Box className="flex-col items-start justify-start mt-12">
-        <h2 className="text-2xl text-muted-foreground font-semibold">
-          Followed Companies
-        </h2>
+  <h2 className="text-2xl text-muted-foreground font-semibold">
+    Followed Companies
+  </h2>
 
-        <div className="mt-6 w-full grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-6 gap-2">
-          {followedCompanies.length === 0 ? (
-            <p>No Companies followed yet</p>
-          ) : (
-            <React.Fragment>
-              {followedCompanies.map((com) => (
-                <Card className="p-3 space-y-2 relative" key={com.id}>
-                  <div className="w-full flex items-center justify-end">
-                    <Link href={`/companies/${com.id}`}>
-                      <Button variant="ghost" size="icon">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                  </div>
+  <div className="mt-6 w-full grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-6 gap-2">
+    {followedCompanies.length === 0 ? (
+      <p>No Companies followed yet</p>
+    ) : (
+      <React.Fragment>
+        {followedCompanies.map((com) => (
+          <Card className="p-3 space-y-2 relative" key={com.id}>
+            <div className="w-full flex items-center justify-end">
+              <Link href={`/companies/${com.id}`}>
+                <Button variant="ghost" size="icon">
+                  <Eye className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
 
-                  {com.logo && (
-                    <div className="w-full h-24 flex items-center justify-center relative overflow-hidden">
-                      <Image
-                        fill
-                        alt="Logo"
-                        src={com.logo}
-                        className="object-contain w-full h-full"
-                      />
-                    </div>
-                  )}
+            {com.logo && (
+              <div className="w-full h-24 flex items-center justify-center relative overflow-hidden">
+                <Image
+                  fill
+                  alt="Logo"
+                  src={com.logo}
+                  className="object-contain w-full h-full"
+                />
+              </div>
+            )}
 
-                  <CardTitle className="text-lg">{com.name}</CardTitle>
+            <CardTitle className="text-lg">{com.name}</CardTitle>
 
-                  {com.description && (
-                    <CardDescription>
-                      {truncate(com.description, {
-                        length: 80,
-                        omission: "...",
-                      })}
-                    </CardDescription>
-                  )}
-                </Card>
-              ))}
-            </React.Fragment>
-          )}
-        </div>
-      </Box>
+            {com.description && (
+              <CardDescription>
+                {truncate(com.description, {
+                  length: 80,
+                  omission: "...",
+                })}
+              </CardDescription>
+            )}
+          </Card>
+        ))}
+      </React.Fragment>
+    )}
+  </div>
+</Box>
+
     </div>
   );
 };

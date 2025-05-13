@@ -44,7 +44,7 @@ export const EmailForm = ({ initialData, userId }: EmailFormProps) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/users/${userId}`, values);
+      await axios.patch(`/api/user/${userId}`, values);
       toast.success("Saved Successfully");
       setIsEditing(false);
       router.refresh();
