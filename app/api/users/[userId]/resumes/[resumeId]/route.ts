@@ -28,8 +28,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     // Find the resume
     const resume = await db.resume.findUnique({
       where: {
-        id: resumeId,
-        userId: authenticatedUserId, // Ensure the resume belongs to the authenticated user
+        id: resumeId, // Ensure the resume belongs to the authenticated user
       },
     });
 
