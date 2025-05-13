@@ -6,19 +6,21 @@ import { CategoriesList } from "./_components/categories-list";
 import { PageContent } from "./_components/page-content";
 import { AppliedFilters } from "./_components/applied-filters";
 import { Suspense } from "react";
+
+// Change the type definition for searchParams
 type SearchProps = {
-  searchParams: Promise<{
-    title: string;
-    categoryId: string;
-    createdAtFilter: string;
-    yearsOfExperience: string;
-    workMode: string;
-    shiftTiming: string;
-  }>;
+  searchParams: {
+    title?: string;
+    categoryId?: string;
+    createdAtFilter?: string;
+    yearsOfExperience?: string;
+    workMode?: string;
+    shiftTiming?: string;
+  };
 };
 
 const SearchPage = async ({ searchParams }: SearchProps) => {
-  const resolvedSearchParams = await searchParams;
+  // No need to await searchParams since it's now a regular object, not a Promise
 
   const categories = await db.category.findMany({
     orderBy: {
@@ -27,14 +29,16 @@ const SearchPage = async ({ searchParams }: SearchProps) => {
   });
 
   const { userId } = await auth();
-  const jobs = await getJobs({ ...resolvedSearchParams });
+
+  // Pass the searchParams directly to getJobs
+  const jobs = await getJobs({ ...searchParams });
 
   console.log(`Jobs count : ${jobs.length}`);
 
   return (
     <div className="p-6">
       <div className="px-6 pt-6 block md:hidden md:mb-0">
-        <Suspense>
+        <Suspense fallback={<div>Loading search...</div>}>
           <SearchContainer />
         </Suspense>
       </div>
