@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
+// The correct way to type the route parameters in Next.js App Router
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { companyId: string } }
