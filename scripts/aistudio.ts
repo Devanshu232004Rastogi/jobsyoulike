@@ -3,7 +3,7 @@ import {GoogleGenerativeAI, HarmCategory, HarmBlockThreshold} from "@google/gene
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({
-  model: "models/gemini-2.5-pro-exp-03-25",
+  model: "models/gemini-1.5-flash",
 });
 const generationConfig = {
   responseMimeType: "text/plain",
