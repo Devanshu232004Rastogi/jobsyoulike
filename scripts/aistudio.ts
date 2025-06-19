@@ -1,6 +1,6 @@
 'use server';
 import {GoogleGenerativeAI, HarmCategory, HarmBlockThreshold} from "@google/generative-ai";
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
+const API_KEY = process.env.GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({
   model: "models/gemini-2.5-pro-exp-03-25",
